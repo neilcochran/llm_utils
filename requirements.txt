@@ -1,0 +1,12 @@
+# Core dependencies for LLM utilities
+# No external dependencies required for CUDA info script - uses only standard library
+
+# Testing dependencies
+pytest>=7.0.0
+pytest-mock>=3.10.0
+
+# Future dependencies for other modules:
+# torch>=2.0.0  # For PyTorch-related utilities
+# transformers>=4.20.0  # For HuggingFace model handling
+# requests>=2.28.0  # For downloading models
+# tqdm>=4.64.0  # For progress bars
