@@ -162,6 +162,9 @@ python scripts/ollama_export.py --list --ollama-path "D:\ollama-models"
 # Export single model
 python scripts/ollama_export.py -m llama2:7b -o ./exports --ollama-path "D:\ollama-models"
 
+# Export specific models (multiple)
+python scripts/ollama_export.py --models llama2:7b codellama:13b qwen2.5:14b -o ./exports --ollama-path "D:\ollama-models"
+
 # Export all models with progress
 python scripts/ollama_export.py --all -o ./backups --ollama-path "/home/user/.ollama/models" -v
 
@@ -174,6 +177,7 @@ python scripts/ollama_export.py -m starcoder2:15b -o ./exports --ollama-path "D:
 |--------|-------------|
 | `--ollama-path PATH` | Path to Ollama models directory (required) |
 | `-m, --model NAME` | Export specific model |
+| `--models NAME [NAME ...]` | Export multiple specific models (space-separated) |
 | `--all` | Export all available models |
 | `--list` | List available models |
 | `-o, --output DIR` | Output directory (default: ./ollama_exports) |

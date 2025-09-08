@@ -237,6 +237,59 @@ def export_single_model(model_name: str, output_dir: str,
     return result.success
 
 
+def export_multiple_models(model_names: list, output_dir: str,
+                          exporter: OllamaModelExporter,
+                          formatter: OllamaExportFormatter,
+                          verbose: bool = False) -> bool:
+    """Export multiple specific models.
+    
+    Args:
+        model_names: List of model names to export
+        output_dir: Output directory
+        exporter: Model exporter instance
+        formatter: Display formatter
+        verbose: Whether to show detailed information
+        
+    Returns:
+        True if any models were exported successfully, False otherwise
+    """
+    formatter.print_header(f"Exporting {len(model_names)} Models")
+    
+    results = []
+    
+    # Define progress callbacks
+    def step_callback(step: str, status: str):
+        formatter.print_step(step, status)
+    
+    def progress_callback(bytes_copied: int, total_bytes: int, message: str):
+        if total_bytes > 0:
+            # Convert to MB for display
+            mb_copied = bytes_copied / (1024 * 1024)
+            mb_total = total_bytes / (1024 * 1024)
+            formatter.print_progress_bar(
+                bytes_copied, total_bytes, 
+                prefix="Copying", 
+                suffix=f"{mb_copied:.1f}MB / {mb_total:.1f}MB"
+            )
+    
+    # Export each model with progress
+    for i, model_name in enumerate(model_names, 1):
+        print(f"\n{formatter.colorize(f'[{i}/{len(model_names)}]', 'bold')} Exporting {formatter.colorize(model_name, 'cyan')}")
+        
+        result = exporter.export_model(model_name, output_dir, step_callback, progress_callback)
+        results.append(result)
+        
+        if not verbose:
+            status_color = 'green' if result.success else 'red'
+            status_text = "✓" if result.success else "✗"
+            print(f"{formatter.colorize(status_text, status_color)} {model_name}")
+    
+    # Show summary
+    formatter.print_summary(results)
+    
+    return any(r.success for r in results)
+
+
 def export_all_models(output_dir: str,
                      exporter: OllamaModelExporter,
                      formatter: OllamaExportFormatter,
@@ -310,6 +363,7 @@ def main():
 Examples:
   %(prog)s --list --ollama-path "C:\\Users\\username\\.ollama\\models"
   %(prog)s -m llama2 -o ./exports --ollama-path "C:\\Users\\username\\.ollama\\models"
+  %(prog)s --models llama2 codellama qwen2.5:14b -o ./exports --ollama-path "/path/to/models"
   %(prog)s --all -o ./exports --ollama-path "/home/user/.ollama/models"  
   %(prog)s -m llama2 -o ./exports -v --ollama-path "C:\\Users\\username\\.ollama\\models"
         """
@@ -317,6 +371,8 @@ Examples:
     
     parser.add_argument('-m', '--model', 
                        help='Name of the model to export')
+    parser.add_argument('--models', nargs='+',
+                       help='List of specific models to export (space-separated)')
     parser.add_argument('-o', '--output', 
                        help='Output directory for exported models',
                        default='./ollama_exports')
@@ -336,11 +392,12 @@ Examples:
     args = parser.parse_args()
     
     # Validate arguments
-    if not args.list and not args.model and not args.all:
-        parser.error("Must specify --list, --model, or --all")
+    if not args.list and not args.model and not args.models and not args.all:
+        parser.error("Must specify --list, --model, --models, or --all")
     
-    if args.model and args.all:
-        parser.error("Cannot specify both --model and --all")
+    exclusive_args = sum([bool(args.model), bool(args.models), bool(args.all)])
+    if exclusive_args > 1:
+        parser.error("Cannot specify more than one of --model, --models, or --all")
     
     # Validate Ollama models path
     ollama_path = Path(args.ollama_path)
@@ -375,6 +432,10 @@ Examples:
         
         if args.model:
             success = export_single_model(args.model, args.output, exporter, formatter, args.verbose)
+            return 0 if success else 1
+        
+        elif args.models:
+            success = export_multiple_models(args.models, args.output, exporter, formatter, args.verbose)
             return 0 if success else 1
         
         elif args.all:
