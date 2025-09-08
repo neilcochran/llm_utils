@@ -14,9 +14,10 @@ A collection of utilities for working with Large Language Models, focusing on sy
 
 ---
 
-### Ollama Model Export
+### Ollama Model Management
 - **Export to .gguf**: Extract Ollama models as portable .gguf files with Modelfiles
-- **Batch Operations**: Export single models or all models at once
+- **Import from .gguf**: Import .gguf files back into Ollama with automatic Modelfile handling
+- **Batch Operations**: Export/import single models, multiple models, or all models at once
 - **Progress Tracking**: Real-time progress bars and status updates
 - **Cross-platform**: Works on Windows, Linux, and macOS
 
@@ -34,7 +35,7 @@ The project follows clean separation of concerns:
 
 - Python 3.8+
 - **For CUDA features**: NVIDIA GPU with CUDA support, `nvidia-smi` in PATH
-- **For Ollama export**: Ollama installed and models available locally
+- **For Ollama features**: Ollama installed and accessible via PATH
 ## Installation
 
 1. Clone the repository:
@@ -149,9 +150,11 @@ System Compatibility: ✓ Perfect match
 
 <br>
 
-### Ollama Model Export
+### Ollama Model Management
 
 ---
+
+#### Export Models
 
 Export Ollama models to portable .gguf format:
 
@@ -207,6 +210,56 @@ Modelfile: ✓ ./exports/qwen2-5-14b/Modelfile
 GGUF File: ✓ ./exports/qwen2-5-14b/qwen2-5-14b.gguf
 Parameters: 3 settings
 Template: {{- if .Messages }}...
+------------------------------------------------------------
+```
+
+#### Import Models
+
+Import .gguf files back into Ollama:
+
+```bash
+# Import single .gguf file with custom name
+python scripts/ollama_import.py -f model.gguf -n my-model
+
+# Import multiple specific .gguf files
+python scripts/ollama_import.py --files model1.gguf model2.gguf model3.gguf
+
+# Import all .gguf files from a directory
+python scripts/ollama_import.py -d ./exported_models
+
+# Import with verbose output
+python scripts/ollama_import.py -f model.gguf -n my-model -v
+```
+
+#### Ollama Import Options
+| Option | Description |
+|--------|-------------|
+| `-f, --file PATH` | Import single .gguf file |
+| `--files PATH [PATH ...]` | Import multiple .gguf files (space-separated) |
+| `-d, --directory PATH` | Import all .gguf files from directory |
+| `-n, --name NAME` | Custom name for imported model (only with --file) |
+| `-v, --verbose` | Show detailed progress |
+| `--no-color` | Disable colored output |
+| `--json` | Output results in JSON format |
+
+#### Import Example Output
+```
+============================================================
+ Importing Model: my-model
+============================================================
+
+⏳ Validating .gguf file
+✓ .gguf file validated
+⏳ Looking for Modelfile
+✓ Modelfile found and read
+⏳ Creating Ollama model 'my-model'
+✓ Model 'my-model' created successfully
+
+Model: my-model
+Status: SUCCESS
+GGUF Source: ./model.gguf
+Modelfile: ✓ ./Modelfile
+Ollama Import: ✓ Created successfully
 ------------------------------------------------------------
 ```
 
