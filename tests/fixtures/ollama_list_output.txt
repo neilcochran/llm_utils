@@ -1,0 +1,4 @@
+NAME              ID              SIZE    MODIFIED     
+llama2:latest     abc123def456    3.8 GB  2 days ago  
+codellama:7b      def456ghi789    4.1 GB  1 week ago  
+mistral:instruct  ghi789jkl012    4.2 GB  3 days ago
