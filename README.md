@@ -4,12 +4,37 @@ A collection of utilities for working with Large Language Models, focusing on sy
 
 ## Features
 
+---
+
 ### CUDA Status Checker
 - **System Compatibility**: Check CUDA toolkit, driver versions, and GPU information
 - **PyTorch Integration**: Verify PyTorch installation and CUDA compatibility
 - **Smart Recommendations**: Get specific installation commands for compatible PyTorch versions
 - **Multiple Output Formats**: Pretty-printed terminal output or JSON for scripting
 
+---
+
+### Ollama Model Export
+- **Export to .gguf**: Extract Ollama models as portable .gguf files with Modelfiles
+- **Batch Operations**: Export single models or all models at once
+- **Progress Tracking**: Real-time progress bars and status updates
+- **Cross-platform**: Works on Windows, Linux, and macOS
+
+---
+
+## Architecture
+
+The project follows clean separation of concerns:
+
+- **`/src/`**: Pure data collection and processing logic
+- **`/scripts/`**: CLI interfaces and display formatting
+- **Portable**: All scripts can be run from any directory
+
+## System Requirements
+
+- Python 3.8+
+- **For CUDA features**: NVIDIA GPU with CUDA support, `nvidia-smi` in PATH
+- **For Ollama export**: Ollama installed and models available locally
 ## Installation
 
 1. Clone the repository:
@@ -32,9 +57,13 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Usage
+## Usage:
+
 
 ### CUDA Check
+
+---
+
 Check your CUDA installation and PyTorch compatibility:
 
 ```bash
@@ -46,120 +75,17 @@ python scripts/cuda_check.py --no-pytorch
 
 # JSON output for scripting
 python scripts/cuda_check.py --json
-
-# Save output to file
-python scripts/cuda_check.py -o cuda_report.txt
-
-# Plain text without colors
-python scripts/cuda_check.py --no-color
 ```
 
-#### Example Output
-```
-============================================================
-                    SYSTEM INFORMATION                     
-============================================================
-Platform: Linux x86_64
-Python: 3.11.5
-
-============================================================
-                      CUDA STATUS                          
-============================================================
-Status: ✓ Available
-CUDA Toolkit: 12.1
-Driver Version: 535.104.12
-
-============================================================
-                    GPU INFORMATION                        
-============================================================
-
-GPU 0: NVIDIA GeForce RTX 4090
-  Memory: 1,695MB / 24,564MB
-  [██░░░░░░░░░░░░░░░░░░] 7%
-  Utilization: 0%
-  Temperature: 45°C
-  Power: 68.2W / 450.0W (15%)
-
-Total GPU Memory: 24.0 GB
-
-============================================================
-                    PYTORCH STATUS                         
-============================================================
-Installed Version: 2.1.0+cu121
-CUDA Support: 12.1
-System Compatibility: ✓ Perfect match
-
-============================================================
-                    RECOMMENDATIONS                        
-============================================================
-Notes:
-  • Compatible PyTorch versions: 2.1.0, 2.2.0, 2.3.0, 2.5.0
-```
-
-### Command Line Options
-
+#### CUDA Check Options
 | Option | Description |
 |--------|-------------|
-| `--json` | Output in JSON format for scripting |
+| `--json` | Output in JSON format |
 | `--no-color` | Disable colored output |
-| `--no-pytorch` | Skip PyTorch installation checks |
+| `--no-pytorch` | Skip PyTorch checks |
 | `-o, --output FILE` | Save output to file |
-| `--version` | Show version information |
-| `--help` | Show help message |
 
-## Features Detail
-
-### CUDA Detection
-- Automatically detects CUDA toolkit version via `nvcc` or `nvidia-smi`
-- Reports driver version and compatibility
-- Identifies all available GPUs with detailed specifications
-
-### GPU Monitoring
-- **Memory Usage**: Shows used/total memory with visual progress bars
-- **Utilization**: Current GPU compute usage percentage  
-- **Temperature**: Real-time temperature monitoring with color-coded warnings
-- **Power Consumption**: Power draw vs. power limit with efficiency indicators
-
-### PyTorch Integration
-- Detects installed PyTorch version and CUDA support
-- Compares system CUDA with PyTorch CUDA version
-- Provides specific installation commands for compatible versions
-- Handles edge cases like CPU-only PyTorch on CUDA systems
-
-### Smart Recommendations
-- Suggests optimal PyTorch versions for your CUDA installation
-- Warns about CUDA versions that are too new for current PyTorch releases
-- Provides copy-paste installation commands with correct index URLs
-
-## Color Coding
-
-The output uses color coding to quickly identify status:
-- 🟢 **Green**: Good/optimal values
-- 🟡 **Yellow**: Warning/medium usage
-- 🔴 **Red**: Critical/high usage values
-
-### Thresholds
-- **Memory**: >70% yellow, >90% red
-- **GPU Utilization**: >50% yellow, >80% red  
-- **Temperature**: >60°C yellow, >75°C red
-- **Power**: >40% yellow, >80% red
-
-## Architecture
-
-The project follows clean separation of concerns:
-
-- **`/src/`**: Pure data collection and processing logic
-- **`/scripts/`**: CLI interfaces and display formatting
-- **Portable**: All scripts can be run from any directory
-
-## System Requirements
-
-- Python 3.8+
-- NVIDIA GPU with CUDA support (for GPU features)
-- `nvidia-smi` available in PATH
-- Optional: PyTorch for runtime compatibility checking
-
-## JSON Output
+### JSON Output
 
 For programmatic use, the `--json` flag outputs structured data:
 
@@ -185,6 +111,102 @@ For programmatic use, the `--json` flag outputs structured data:
   "pytorch_compatibility_status": "✓ Perfect match"
 }
 ```
+
+#### Example Output
+```
+============================================================
+                    SYSTEM INFORMATION                     
+============================================================
+Platform: Windows AMD64
+Python: 3.10.4
+
+============================================================
+                      CUDA STATUS                          
+============================================================
+Status: ✓ Available
+CUDA Toolkit: 12.1
+Driver Version: 535.104.12
+
+============================================================
+                    GPU INFORMATION                        
+============================================================
+
+GPU 0: NVIDIA GeForce RTX 4090
+  Memory: 1,695MB / 24,564MB (7%)
+  Utilization: 0%
+  Temperature: 45°C
+  Power: 68.2W / 450.0W (15%)
+
+Total GPU Memory: 24.0 GB
+
+============================================================
+                    PYTORCH STATUS                         
+============================================================
+Installed Version: 2.1.0+cu121
+CUDA Support: 12.1
+System Compatibility: ✓ Perfect match
+```
+
+<br>
+
+### Ollama Model Export
+
+---
+
+Export Ollama models to portable .gguf format:
+
+```bash
+# List available models
+python scripts/ollama_export.py --list --ollama-path "D:\ollama-models"
+
+# Export single model
+python scripts/ollama_export.py -m llama2:7b -o ./exports --ollama-path "D:\ollama-models"
+
+# Export all models with progress
+python scripts/ollama_export.py --all -o ./backups --ollama-path "/home/user/.ollama/models" -v
+
+# Export with verbose output
+python scripts/ollama_export.py -m starcoder2:15b -o ./exports --ollama-path "D:\ollama-models" -v
+```
+
+#### Ollama Export Options
+| Option | Description |
+|--------|-------------|
+| `--ollama-path PATH` | Path to Ollama models directory (required) |
+| `-m, --model NAME` | Export specific model |
+| `--all` | Export all available models |
+| `--list` | List available models |
+| `-o, --output DIR` | Output directory (default: ./ollama_exports) |
+| `-v, --verbose` | Show detailed progress |
+
+#### Example Output
+```
+============================================================
+ Exporting Model: qwen2.5:14b
+============================================================
+
+⏳ Retrieving model information from Ollama
+✓ Model information retrieved successfully
+⏳ Creating export directory
+✓ Export directory created: ./exports/qwen2-5-14b
+⏳ Writing Modelfile
+✓ Modelfile written successfully
+⏳ Locating .gguf file
+✓ Found .gguf file (8324.5 MB), copying...
+Copying |████████████████████████████████████████| 100.0% 8324.5MB / 8324.5MB
+✓ .gguf file copied successfully
+
+Model: qwen2.5:14b
+Status: SUCCESS
+Export Directory: ./exports/qwen2-5-14b
+Modelfile: ✓ ./exports/qwen2-5-14b/Modelfile
+GGUF File: ✓ ./exports/qwen2-5-14b/qwen2-5-14b.gguf
+Parameters: 3 settings
+Template: {{- if .Messages }}...
+------------------------------------------------------------
+```
+
+---
 
 ## License
 
