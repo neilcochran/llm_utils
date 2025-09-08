@@ -4,15 +4,12 @@ A collection of utilities for working with Large Language Models, focusing on sy
 
 ## Features
 
----
-
 ### CUDA Status Checker
 - **System Compatibility**: Check CUDA toolkit, driver versions, and GPU information
 - **PyTorch Integration**: Verify PyTorch installation and CUDA compatibility
 - **Smart Recommendations**: Get specific installation commands for compatible PyTorch versions
 - **Multiple Output Formats**: Pretty-printed terminal output or JSON for scripting
 
----
 
 ### Ollama Model Management
 - **Export to .gguf**: Extract Ollama models as portable .gguf files with Modelfiles
@@ -21,7 +18,6 @@ A collection of utilities for working with Large Language Models, focusing on sy
 - **Progress Tracking**: Real-time progress bars and status updates
 - **Cross-platform**: Works on Windows, Linux, and macOS
 
----
 
 ## Architecture
 
@@ -152,8 +148,6 @@ System Compatibility: ✓ Perfect match
 
 ### Ollama Model Management
 
----
-
 #### Export Models
 
 Export Ollama models to portable .gguf format:
@@ -262,8 +256,6 @@ Modelfile: ✓ ./Modelfile
 Ollama Import: ✓ Created successfully
 ------------------------------------------------------------
 ```
-
----
 
 ## License
 
