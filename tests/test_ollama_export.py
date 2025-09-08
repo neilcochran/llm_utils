@@ -370,6 +370,114 @@ codellama:7b    def456ghi789    4.1 GB  1 week ago"""
         assert "Access denied" in result.error_message
 
 
+class TestMultipleModelExport:
+    """Test the multiple model export CLI functionality."""
+    
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.test_models_path = "/tmp/test_ollama_models"
+        with patch('os.path.exists', return_value=True):
+            self.exporter = OllamaModelExporter(self.test_models_path)
+    
+    @patch.object(OllamaModelExporter, 'export_model')
+    def test_export_multiple_models_success(self, mock_export):
+        """Test exporting multiple specific models successfully."""
+        # Import here to avoid circular imports
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+        from ollama_export import export_multiple_models, OllamaExportFormatter
+        
+        # Create mock export results
+        result1 = ModelExportInfo("llama2", "llama2", None, [], None, "", None, None, None, None, True, None)
+        result2 = ModelExportInfo("codellama", "codellama", None, [], None, "", None, None, None, None, True, None)
+        result3 = ModelExportInfo("qwen2", "qwen2", None, [], None, "", None, None, None, None, False, "Test error")
+        
+        mock_export.side_effect = [result1, result2, result3]
+        
+        formatter = OllamaExportFormatter(use_color=False)
+        models_to_export = ["llama2", "codellama", "qwen2"]
+        
+        # Patch print to avoid output during tests
+        with patch('builtins.print'):
+            success = export_multiple_models(models_to_export, "/tmp", self.exporter, formatter, verbose=False)
+        
+        assert success is True  # Should return True if ANY model succeeds
+        assert mock_export.call_count == 3
+        
+        # Verify each model was called correctly
+        for i, model_name in enumerate(models_to_export):
+            actual_call = mock_export.call_args_list[i]
+            assert actual_call[0][0] == model_name  # model name
+            assert actual_call[0][1] == "/tmp"       # output directory
+            # step_callback and progress_callback are the 3rd and 4th args
+            assert callable(actual_call[0][2])      # step_callback
+            assert callable(actual_call[0][3])      # progress_callback
+    
+    @patch.object(OllamaModelExporter, 'export_model')
+    def test_export_multiple_models_all_fail(self, mock_export):
+        """Test exporting multiple models when all fail."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+        from ollama_export import export_multiple_models, OllamaExportFormatter
+        
+        # Create mock export results - all failed
+        result1 = ModelExportInfo("model1", "model1", None, [], None, "", None, None, None, None, False, "Error 1")
+        result2 = ModelExportInfo("model2", "model2", None, [], None, "", None, None, None, None, False, "Error 2")
+        
+        mock_export.side_effect = [result1, result2]
+        
+        formatter = OllamaExportFormatter(use_color=False)
+        models_to_export = ["model1", "model2"]
+        
+        # Patch print to avoid output during tests
+        with patch('builtins.print'):
+            success = export_multiple_models(models_to_export, "/tmp", self.exporter, formatter, verbose=False)
+        
+        assert success is False  # Should return False if ALL models fail
+        assert mock_export.call_count == 2
+    
+    @patch.object(OllamaModelExporter, 'export_model')
+    def test_export_multiple_models_empty_list(self, mock_export):
+        """Test exporting empty list of models."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+        from ollama_export import export_multiple_models, OllamaExportFormatter
+        
+        formatter = OllamaExportFormatter(use_color=False)
+        models_to_export = []
+        
+        # Patch print to avoid output during tests
+        with patch('builtins.print'):
+            success = export_multiple_models(models_to_export, "/tmp", self.exporter, formatter, verbose=False)
+        
+        assert success is False  # Empty list should return False
+        assert mock_export.call_count == 0
+    
+    @patch.object(OllamaModelExporter, 'export_model')
+    def test_export_multiple_models_verbose(self, mock_export):
+        """Test exporting multiple models with verbose output."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+        from ollama_export import export_multiple_models, OllamaExportFormatter
+        
+        # Create mock export results
+        result1 = ModelExportInfo("llama2", "llama2", "{{ .Prompt }}", ["temp 0.8"], "Be helpful", 
+                                "FROM llama2.gguf", None, "/tmp/llama2", "/tmp/llama2/Modelfile", 
+                                "/tmp/llama2/llama2.gguf", True, None)
+        
+        mock_export.side_effect = [result1]
+        
+        formatter = OllamaExportFormatter(use_color=False)
+        models_to_export = ["llama2"]
+        
+        # Patch print to avoid output during tests
+        with patch('builtins.print'):
+            success = export_multiple_models(models_to_export, "/tmp", self.exporter, formatter, verbose=True)
+        
+        assert success is True
+        assert mock_export.call_count == 1
+
+
 class TestModelExportInfo:
     """Test the ModelExportInfo dataclass."""
 

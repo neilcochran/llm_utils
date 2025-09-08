@@ -4,23 +4,20 @@ A collection of utilities for working with Large Language Models, focusing on sy
 
 ## Features
 
----
-
 ### CUDA Status Checker
 - **System Compatibility**: Check CUDA toolkit, driver versions, and GPU information
 - **PyTorch Integration**: Verify PyTorch installation and CUDA compatibility
 - **Smart Recommendations**: Get specific installation commands for compatible PyTorch versions
 - **Multiple Output Formats**: Pretty-printed terminal output or JSON for scripting
 
----
 
-### Ollama Model Export
+### Ollama Model Management
 - **Export to .gguf**: Extract Ollama models as portable .gguf files with Modelfiles
-- **Batch Operations**: Export single models or all models at once
+- **Import from .gguf**: Import .gguf files back into Ollama with automatic Modelfile handling
+- **Batch Operations**: Export/import single models, multiple models, or all models at once
 - **Progress Tracking**: Real-time progress bars and status updates
 - **Cross-platform**: Works on Windows, Linux, and macOS
 
----
 
 ## Architecture
 
@@ -34,7 +31,7 @@ The project follows clean separation of concerns:
 
 - Python 3.8+
 - **For CUDA features**: NVIDIA GPU with CUDA support, `nvidia-smi` in PATH
-- **For Ollama export**: Ollama installed and models available locally
+- **For Ollama features**: Ollama installed and accessible via PATH
 ## Installation
 
 1. Clone the repository:
@@ -149,9 +146,9 @@ System Compatibility: ✓ Perfect match
 
 <br>
 
-### Ollama Model Export
+### Ollama Model Management
 
----
+#### Export Models
 
 Export Ollama models to portable .gguf format:
 
@@ -161,6 +158,9 @@ python scripts/ollama_export.py --list --ollama-path "D:\ollama-models"
 
 # Export single model
 python scripts/ollama_export.py -m llama2:7b -o ./exports --ollama-path "D:\ollama-models"
+
+# Export specific models (multiple)
+python scripts/ollama_export.py --models llama2:7b codellama:13b qwen2.5:14b -o ./exports --ollama-path "D:\ollama-models"
 
 # Export all models with progress
 python scripts/ollama_export.py --all -o ./backups --ollama-path "/home/user/.ollama/models" -v
@@ -174,6 +174,7 @@ python scripts/ollama_export.py -m starcoder2:15b -o ./exports --ollama-path "D:
 |--------|-------------|
 | `--ollama-path PATH` | Path to Ollama models directory (required) |
 | `-m, --model NAME` | Export specific model |
+| `--models NAME [NAME ...]` | Export multiple specific models (space-separated) |
 | `--all` | Export all available models |
 | `--list` | List available models |
 | `-o, --output DIR` | Output directory (default: ./ollama_exports) |
@@ -206,7 +207,55 @@ Template: {{- if .Messages }}...
 ------------------------------------------------------------
 ```
 
----
+#### Import Models
+
+Import .gguf files back into Ollama:
+
+```bash
+# Import single .gguf file with custom name
+python scripts/ollama_import.py -f model.gguf -n my-model
+
+# Import multiple specific .gguf files
+python scripts/ollama_import.py --files model1.gguf model2.gguf model3.gguf
+
+# Import all .gguf files from a directory
+python scripts/ollama_import.py -d ./exported_models
+
+# Import with verbose output
+python scripts/ollama_import.py -f model.gguf -n my-model -v
+```
+
+#### Ollama Import Options
+| Option | Description |
+|--------|-------------|
+| `-f, --file PATH` | Import single .gguf file |
+| `--files PATH [PATH ...]` | Import multiple .gguf files (space-separated) |
+| `-d, --directory PATH` | Import all .gguf files from directory |
+| `-n, --name NAME` | Custom name for imported model (only with --file) |
+| `-v, --verbose` | Show detailed progress |
+| `--no-color` | Disable colored output |
+| `--json` | Output results in JSON format |
+
+#### Import Example Output
+```
+============================================================
+ Importing Model: my-model
+============================================================
+
+⏳ Validating .gguf file
+✓ .gguf file validated
+⏳ Looking for Modelfile
+✓ Modelfile found and read
+⏳ Creating Ollama model 'my-model'
+✓ Model 'my-model' created successfully
+
+Model: my-model
+Status: SUCCESS
+GGUF Source: ./model.gguf
+Modelfile: ✓ ./Modelfile
+Ollama Import: ✓ Created successfully
+------------------------------------------------------------
+```
 
 ## License
 
