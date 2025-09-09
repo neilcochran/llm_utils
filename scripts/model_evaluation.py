@@ -192,7 +192,9 @@ class ModelEvaluationFormatter:
             # Token metrics
             tokens = result.token_metrics
             print(f"  Tokens generated: {tokens.completion_tokens}")
-            print(f"  Tokens per second: {tokens.tokens_per_second:.1f}")
+            print(f"  Tokens per second: {tokens.tokens_per_second:.1f} (peak: {tokens.peak_tokens_per_second:.1f})")
+            if tokens.tokens_per_second_variance > 0:
+                print(f"  Speed consistency: ±{tokens.tokens_per_second_variance:.1f} tok/s")
             
             # Resource metrics if available
             if result.resource_metrics and verbose:
@@ -234,7 +236,13 @@ class ModelEvaluationFormatter:
             print(f"\n{self.colorize('Performance Averages (excluding initialization):', 'green')}")
             print(f"  Time to first token: {self.format_time(stats.get('avg_time_to_first_token_ms', 0))}")
             print(f"  Total inference time: {self.format_time(stats.get('avg_total_inference_time_ms', 0))}") 
-            print(f"  Tokens per second: {stats.get('avg_tokens_per_second', 0):.1f}")
+            print(f"  Tokens per second: {stats.get('avg_tokens_per_second', 0):.1f} (peak: {stats.get('peak_tokens_per_second', 0):.1f})")
+            
+            # Show speed consistency if we have variance data
+            variance = stats.get('tokens_per_second_variance', 0)
+            if variance > 0:
+                print(f"  Speed consistency: ±{variance:.1f} tok/s")
+            
             print(f"  Total tokens generated: {stats.get('total_tokens_generated', 0)}")
             
             if 'avg_cpu_percent' in stats:

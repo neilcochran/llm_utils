@@ -51,7 +51,8 @@ class TestMetricsCollector(unittest.TestCase):
     
     def test_token_recording(self):
         """Test token recording and metrics calculation."""
-        with patch('time.perf_counter', side_effect=[1.0, 1.1, 1.5]):
+        # Times: start, record_token(Hello), record_first_token(), record_token(" "), record_token("World"), end
+        with patch('time.perf_counter', side_effect=[1.0, 1.1, 1.1, 1.2, 1.4, 1.5]):
             self.collector.start_inference()
             self.collector.record_token("Hello")
             self.collector.record_token(" ")
@@ -62,6 +63,10 @@ class TestMetricsCollector(unittest.TestCase):
         token_metrics = self.collector.calculate_token_metrics()
         self.assertEqual(token_metrics.completion_tokens, 3)
         self.assertEqual(token_metrics.total_tokens, 13)  # 10 prompt + 3 completion
+        
+        # New fields should exist
+        self.assertGreaterEqual(token_metrics.peak_tokens_per_second, 0)
+        self.assertGreaterEqual(token_metrics.tokens_per_second_variance, 0)
         self.assertEqual(token_metrics.prompt_tokens, 10)
         self.assertEqual(token_metrics.tokens_per_second, 6.0)  # 3 tokens / 0.5s
         self.assertAlmostEqual(token_metrics.average_token_length, 11/3)  # "Hello" + " " + "World" = 11 chars / 3 tokens
@@ -97,11 +102,15 @@ class TestMetricsCollector(unittest.TestCase):
             prompt_tokens=10,
             completion_tokens=3,
             average_token_length=2.5,
-            tokens_per_second=6.0
+            tokens_per_second=6.0,
+            peak_tokens_per_second=8.5,
+            tokens_per_second_variance=1.2
         )
         result = tokens.to_dict()
         self.assertIsInstance(result, dict)
         self.assertEqual(result['total_tokens'], 13)
+        self.assertEqual(result['peak_tokens_per_second'], 8.5)
+        self.assertEqual(result['tokens_per_second_variance'], 1.2)
 
 
 class TestPerformanceMonitor(unittest.TestCase):
@@ -423,7 +432,7 @@ class TestModelEvaluator(unittest.TestCase):
         """Test evaluation result summary statistics."""
         # Create mock query results
         timing_metrics = TimingMetrics(100.0, 400.0, 500.0)
-        token_metrics = TokenMetrics(15, 10, 5, 3.0, 10.0)
+        token_metrics = TokenMetrics(15, 10, 5, 3.0, 10.0, 12.0, 2.0)
         response = ModelResponse("Test", True, model_name="test:model")
         
         query_result = QueryResult(

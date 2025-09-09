@@ -121,7 +121,7 @@ Model: qwen3:0.6b
 Backend: ollama
 Status: Available
 Quantization: quantization        Q4_K_M
-Model initialization: 2.4s
+Model initialization: 3.8s
 
 Starting evaluation of 5 queries...
 [5/5] Evaluation complete....
@@ -131,22 +131,23 @@ Starting evaluation of 5 queries...
 ============================================================
 
 Total Duration: 36.9s
-Model Initialization: 2.4s
+Model Initialization: 3.8s
 Queries Evaluated: 5
 Successful Queries: 5
 
 Performance Averages (excluding initialization):
-  Time to first token: 480.0ms
+  Time to first token: 485.7ms
   Total inference time: 7.1s
-  Tokens per second: 78.6
-  Total tokens generated: 2867
+  Tokens per second: 80.8 (peak: 111.0)
+  Speed consistency: ±22.1 tok/s
+  Total tokens generated: 2988
 
 Resource Usage:
-  CPU: 21.0% (max: 43.7%)
-  Memory: 15.6GB / 31.7GB (49.3%) (max: 49.3%)
-  GPU: 56.9% (max: 90.0%)
-  GPU Memory: 3.1GB / 8.0GB (39.1%) (max: 39.1%)
-  GPU Power: 109.1W (max: 145.9W)
+  CPU: 21.2% (max: 39.1%)
+  Memory: 15.7GB / 31.7GB (49.6%) (max: 49.7%)
+  GPU: 60.7% (max: 93.0%)
+  GPU Memory: 3.0GB / 8.0GB (38.1%) (max: 38.1%)
+  GPU Power: 109.3W (max: 148.1W)
 ```
 
 ### CUDA Check
