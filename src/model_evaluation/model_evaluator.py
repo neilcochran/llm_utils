@@ -83,6 +83,8 @@ class EvaluationResult:
         # Aggregate token metrics
         all_tokens = [qr.token_metrics for qr in self.query_results]
         avg_tokens_per_sec = sum(t.tokens_per_second for t in all_tokens) / len(all_tokens)
+        peak_tokens_per_sec = max(t.peak_tokens_per_second for t in all_tokens) if all_tokens else 0.0
+        avg_tokens_per_sec_variance = sum(t.tokens_per_second_variance for t in all_tokens) / len(all_tokens) if all_tokens else 0.0
         total_tokens = sum(t.total_tokens for t in all_tokens)
         total_completion_tokens = sum(t.completion_tokens for t in all_tokens)
         
@@ -121,6 +123,8 @@ class EvaluationResult:
             "avg_time_to_first_token_ms": avg_time_to_first,
             "avg_total_inference_time_ms": avg_total_time,
             "avg_tokens_per_second": avg_tokens_per_sec,
+            "peak_tokens_per_second": peak_tokens_per_sec,
+            "tokens_per_second_variance": avg_tokens_per_sec_variance,
             "total_tokens_generated": total_completion_tokens,
             "total_tokens_processed": total_tokens,
             **resource_summaries
