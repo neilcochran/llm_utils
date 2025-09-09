@@ -4,6 +4,13 @@ A collection of utilities for working with Large Language Models, focusing on sy
 
 ## Features
 
+### Model Performance Evaluation
+- **Hardware Monitoring**: Real-time CPU, RAM, and GPU usage tracking during inference
+- **Performance Metrics**: Tokens/second, time to first token, total inference time
+- **Resource Analytics**: Peak and average resource consumption analysis
+- **Flexible Testing**: Custom queries, batch testing, and configurable parameters
+- **Multiple Output Formats**: Interactive display, JSON, and CSV export
+
 ### CUDA Status Checker
 - **System Compatibility**: Check CUDA toolkit, driver versions, and GPU information
 - **PyTorch Integration**: Verify PyTorch installation and CUDA compatibility
@@ -19,6 +26,7 @@ A collection of utilities for working with Large Language Models, focusing on sy
 - **Cross-platform**: Works on Windows, Linux, and macOS
 
 
+
 ## Architecture
 
 The project follows clean separation of concerns:
@@ -32,6 +40,7 @@ The project follows clean separation of concerns:
 - Python 3.8+
 - **For CUDA features**: NVIDIA GPU with CUDA support, `nvidia-smi` in PATH
 - **For Ollama features**: Ollama installed and accessible via PATH
+- **For model evaluation**: Ollama models available locally, psutil for system monitoring
 ## Installation
 
 1. Clone the repository:
@@ -56,6 +65,89 @@ pip install -r requirements.txt
 
 ## Usage:
 
+### Model Performance Evaluation
+
+---
+
+Evaluate LLM performance with comprehensive hardware monitoring:
+
+```bash
+# Basic model evaluation with default queries
+python scripts/model_evaluation.py -m llama2:7b
+
+# Custom single query evaluation
+python scripts/model_evaluation.py -m qwen2.5:14b -q "Explain quantum computing in simple terms"
+
+# Multiple custom queries
+python scripts/model_evaluation.py -m codellama:13b --queries "Write a Python function" "Debug this code" "Optimize performance"
+
+# Batch evaluation from file
+python scripts/model_evaluation.py -m starcoder2:15b --queries-file evaluation_queries.txt
+
+# Detailed evaluation with verbose output
+python scripts/model_evaluation.py -m llama2:7b -v --temperature 0.8 --max-tokens 500
+
+# JSON output for analysis
+python scripts/model_evaluation.py -m qwen2.5:14b --json -o results.json
+
+# Skip resource monitoring (faster)
+python scripts/model_evaluation.py -m llama2:7b --no-resources
+```
+
+#### Model Evaluation Options
+| Option | Description |
+|--------|-------------|
+| `-m, --model MODEL` | Model name to evaluate (required) |
+| `--backend BACKEND` | Model backend to use (default: ollama) |
+| `-q, --query QUERY` | Single query to evaluate |
+| `--queries QUERIES [...]` | Multiple queries (space-separated) |
+| `--queries-file FILE` | File containing queries (one per line) |
+| `--temperature TEMP` | Generation temperature (default: 0.7) |
+| `--max-tokens N` | Maximum tokens to generate |
+| `--timeout N` | Timeout per query in seconds (default: 300) |
+| `--no-resources` | Skip resource monitoring |
+| `-v, --verbose` | Show detailed output and live metrics |
+| `--no-color` | Disable colored output |
+| `--json` | Output results in JSON format |
+| `-o, --output FILE` | Save results to file |
+
+#### Example Output
+```
+============================================================
+ Model Evaluation: qwen3:0.6b
+============================================================
+
+Model: qwen3:0.6b
+Backend: ollama
+Status: Available
+Quantization: quantization        Q4_K_M
+Model initialization: 2.4s
+
+Starting evaluation of 5 queries...
+[5/5] Evaluation complete....
+
+============================================================
+ EVALUATION SUMMARY
+============================================================
+
+Total Duration: 36.9s
+Model Initialization: 2.4s
+Queries Evaluated: 5
+Successful Queries: 5
+
+Performance Averages (excluding initialization):
+  Time to first token: 480.0ms
+  Total inference time: 7.1s
+  Tokens per second: 78.6
+  Total tokens generated: 2867
+
+Resource Usage:
+  CPU: 21.0% (max: 43.7%)
+  Memory: 15.6GB / 31.7GB (49.3%) (max: 49.3%)
+  GPU: 56.9% (max: 90.0%)
+  GPU Memory: 3.1GB / 8.0GB (39.1%) (max: 39.1%)
+  GPU Power: 109.1W (max: 145.9W)
+```
 
 ### CUDA Check
 

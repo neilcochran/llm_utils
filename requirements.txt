@@ -1,6 +1,9 @@
 # Core dependencies for LLM utilities
 # No external dependencies required for CUDA info script - uses only standard library
 
+# Performance monitoring
+psutil>=5.9.0  # For system resource monitoring
+
 # Testing dependencies
 pytest>=7.0.0
 pytest-mock>=3.10.0
